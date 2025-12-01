@@ -1,15 +1,32 @@
-# Elysia with Bun runtime
+## Тестовое задание в DataLouna.io
 
-## Getting Started
-To get started with this template, simply paste this command into your terminal:
-```bash
-bun create elysia ./elysia-example
+> Для удобства разбил на два сервиса `/service1` - выгрузка скинов, `/service2` - сервис с базой.
+
+Запуск инфраструктуры `docker compose up --build`.
+
+Отдельный запуск __Redis__ в докере:
+
+```bach
+docker run -d --name redis -p 6379:6379 redis:alpine3.22
 ```
 
-## Development
-To start the development server run:
+### /service1
+
+> _Так как есть ограничение по запросам, и данных обновляються раз в 5 минут, я сделал преодический опрос с записью в кэш._
+
+Запрос на получение скинов с ценами:
+
 ```bash
-bun run dev
+curl localhost:3000/skins
 ```
 
-Open http://localhost:3000/ with your browser to see the result.
+Вернет массив с объектами:
+
+```typescript
+interface SkinPrice {
+  name: string
+  min_price_tradable: number | null
+  min_price_not_tradable: number | null
+  created_at: number
+}
+```
