@@ -81,5 +81,9 @@ curl localhost:3002/products/buy \
 Пример ответа:
 
 ```json
-{ "id":1, "name": "user1", "balance": 802 }
+{ 
+  "id":1, 
+  "name": "user1", 
+  "balance": 802
+}
 ```
