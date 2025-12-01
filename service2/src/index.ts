@@ -12,7 +12,7 @@ interface RequestBody {
 
 // __ Postgres client setup __
 
-const pg = postgres(process.env.PG_URL ?? 'postgres://root:root@localhost:5432/test')
+const sql = postgres(process.env.PG_URL ?? 'postgres://root:root@localhost:5432/test')
    
 
 // __ Elysia server setup __
@@ -28,7 +28,7 @@ server.listen(3000)
 
 process.on('SIGINT', async () => {
     await server.stop()
-    await pg.end()
+    await sql.end()
     process.exit(0);
 });
 
@@ -52,8 +52,8 @@ server.post("/products/buy", async ({ request }) => {
         return { error: 'Insufficient balance' }
     }
 
-    await pg`UPDATE users SET balance = balance - ${product[0].price}, updated_at = NOW() WHERE id = ${user_id}`
-    await pg`INSERT INTO purchases (user_id, product_id, created_at) VALUES (${user_id}, ${product_id}, NOW())`
+    await sql`UPDATE users SET balance = balance - ${product[0].price}, updated_at = NOW() WHERE id = ${user_id}`
+    await sql`INSERT INTO purchases (user_id, product_id, created_at) VALUES (${user_id}, ${product_id}, NOW())`
 
     const after = await getUser(user_id)
 
@@ -64,9 +64,9 @@ server.post("/products/buy", async ({ request }) => {
 // __ Database queries __
 
 async function getUser(id: number) {
-    return await pg`SELECT id, name, balance FROM users WHERE id = ${id}`
+    return await sql`SELECT id, name, balance FROM users WHERE id = ${id}`
 }
 
 async function getProduct(id: number) {
-    return await pg`SELECT id, name, price FROM products WHERE id = ${id}`
+    return await sql`SELECT id, name, price FROM products WHERE id = ${id}`
 }
