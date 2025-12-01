@@ -2,7 +2,6 @@ import { Elysia } from 'elysia';
 import { createClient } from 'redis';
 
 
-
 // __ Types __
 
 interface APISkinResponce {
@@ -19,7 +18,6 @@ interface SkinPrice {
 }
 
 
-
 // __ Redis client setup __
 
 const redis = createClient({ url: process.env.REDIS_URL ?? 'redis://localhost:6379' })
@@ -27,7 +25,6 @@ redis.on('error', error => console.log(`[${+new Date()}] Redis Client Error`, er
 redis.connect().then(() => {
   console.log(`[${+new Date()}] Redis client connected`)
 })
-
 
 
 // __ Elysia server setup __
