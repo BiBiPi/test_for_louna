@@ -82,7 +82,7 @@ curl localhost:3002/products/buy \
 
 ```json
 { 
-  "id":1, 
+  "id": 1, 
   "name": "user1", 
   "balance": 802
 }
