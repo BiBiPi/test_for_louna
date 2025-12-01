@@ -12,13 +12,7 @@ interface RequestBody {
 
 // __ Postgres client setup __
 
-const pg = postgres({
-    host: process.env.PG_URL ?? 'localhost',
-    port: process.env.PG_PORT ? parseInt(process.env.PG_PORT) : 5432,
-    database: 'test',
-    username: 'root',
-    password: 'root'
-})
+const pg = postgres(process.env.PG_URL ?? 'postgres://root:root@localhost:5432/test')
    
 
 // __ Elysia server setup __
@@ -28,6 +22,15 @@ server.onStart(() => {
     console.log(`[${+new Date()}] Server started at http://localhost:3000 with route /products/buy`)
 });
 server.listen(3000)
+
+
+// __ Graceful shutdown __
+
+process.on('SIGINT', async () => {
+    await server.stop()
+    await pg.end()
+    process.exit(0);
+});
 
 
 // __ Routes __

@@ -35,6 +35,20 @@ server.onStart(() => {
   console.log(`[${+new Date()}] Server started at http://localhost:3000 with route /skins`)
 })
 
+server.listen(3000)
+
+
+// __ Graceful shutdown __
+
+process.on('SIGINT', async () => {
+    await server.stop()
+    await redis.close()
+    process.exit(0);
+});
+
+
+// __ Routes __
+
 server.get('/skins', async () => {
   const data = await redis.get('skins_prices')
 
@@ -44,8 +58,6 @@ server.get('/skins', async () => {
     return []
   }
 })
-
-server.listen(3000)
 
 
 // __ Periodic fetch and store in Redis __
