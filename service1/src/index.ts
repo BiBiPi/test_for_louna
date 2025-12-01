@@ -23,9 +23,10 @@ interface SkinPrice {
 // __ Redis client setup __
 
 const redis = createClient({ url: process.env.REDIS_URL ?? 'redis://localhost:6379' })
-redis.on('connect', () => console.log(`[${+new Date()}] Connected to Redis`))
 redis.on('error', error => console.log(`[${+new Date()}] Redis Client Error`, error))
-await redis.connect()
+redis.connect().then(() => {
+  console.log(`[${+new Date()}] Redis client connected`)
+})
 
 
 
