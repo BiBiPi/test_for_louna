@@ -1,13 +1,16 @@
 import { Elysia } from "elysia"
 import postgres from "postgres"
+import * as z from "zod"
 
 
 // __ Types __
 
-interface RequestBody {
-    user_id: number
-    product_id: number
-}
+const RequestBody = z.object({
+  user_id: z.number(),
+  product_id: z.number(),
+});
+
+type RequestBody = z.infer<typeof RequestBody>;
 
 
 // __ Postgres client setup __
@@ -37,6 +40,8 @@ process.on('SIGINT', async () => {
 
 server.post("/products/buy", async ({ request }) => {
     const { user_id, product_id } = await request.json() as RequestBody
+    
+    RequestBody.parse({ user_id, product_id }) // validation
 
     const user = await getUser(user_id)
     if (!user.length) {
