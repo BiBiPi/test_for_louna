@@ -63,21 +63,24 @@ server.get('/skins', async () => {
 // __ Periodic fetch and store in Redis __
 
 setInterval(() => {
-  console.log(`[${+new Date()}] fetch skins`)
-
   Load()
-
+  console.log(`[${+new Date()}] fetch skins`)
 }, process.env.INTERVAL_FETCH ? parseInt(process.env.INTERVAL_FETCH) : 300000) // 5 minutes
 
 function Load() {
   Promise.all([skinsAPI(true), skinsAPI(false)])
-    .then(async ([tradables, notTradables]) => {
-      if (tradables.ok && notTradables.ok) {
-        const tradables1 = await tradables.json() as [APISkinResponce]
-        const notTradables1 = await notTradables.json() as [APISkinResponce]
+    .then(async ([_tradables, _notTradables]) => {
+      if (_tradables.ok && _notTradables.ok) {
+        const tradables = await _tradables.json() as [APISkinResponce]
+        const notTradables = await _notTradables.json() as [APISkinResponce]
 
-        const merged = tradables1.map(tradable => {
-          const notTradable = notTradables1.find(item2 => tradable.market_hash_name === item2.market_hash_name && tradable.created_at === item2.created_at)
+        // Find & Merge 
+        const merged = tradables.map(tradable => {
+          const notTradable = notTradables.find(
+            notTradable => tradable.market_hash_name === notTradable.market_hash_name && 
+            tradable.created_at === notTradable.created_at
+          )
+          
           if (notTradable) {
             return {
               name: tradable.market_hash_name,
@@ -88,12 +91,13 @@ function Load() {
           }
         })
 
-        console.log(`[${+new Date()}] fetched ${merged.length} items`)
         await redis.set('skins_prices', JSON.stringify(merged)) // store in Redis
-      } else if (!tradables.ok) {
-        console.error(`[${+new Date()}] call API: ${tradables.statusText} ${tradables.status}`)
-      } else if (!notTradables.ok) {
-        console.error(`[${+new Date()}] call API: ${notTradables.statusText} ${notTradables.status}`)
+        
+        console.log(`[${+new Date()}] fetched ${merged.length} items`)
+      } else if (!_tradables.ok) {
+        console.error(`[${+new Date()}] call API: ${_tradables.statusText} ${_tradables.status}`)
+      } else if (!_notTradables.ok) {
+        console.error(`[${+new Date()}] call API: ${_notTradables.statusText} ${_notTradables.status}`)
       }
     })
 }
